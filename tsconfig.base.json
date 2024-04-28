@@ -15,7 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@evm-smart-contract-example/contract": ["packages/contract/src/index.ts"]
+      "@app/contract": ["packages/contract/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

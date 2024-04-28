@@ -1,5 +1,5 @@
 {
-  "name": "@evm-smart-contract-example/source",
+  "name": "@app/source",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {},

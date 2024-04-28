@@ -3,7 +3,7 @@
 import { createWalletClient, createPublicClient, custom, http } from 'viem';
 import { sepolia } from 'viem/chains';
 
-import { bank } from '@evm-smart-contract-example/contract';
+import { bank } from '@app/contract';
 
 export default function Index() {
   function onConnect() {

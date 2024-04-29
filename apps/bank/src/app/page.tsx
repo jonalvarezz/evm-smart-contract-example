@@ -1,11 +1,8 @@
 'use client';
 
-import { createWalletClient, createPublicClient, custom, http } from 'viem';
-import { sepolia } from 'viem/chains';
-
-import { bank } from '@app/contract';
-
 import {
+  Alert,
+  AlertIcon,
   Card,
   CardHeader,
   CardBody,
@@ -27,22 +24,23 @@ import {
   Button,
 } from '@chakra-ui/react';
 
+import { bank } from '@app/contract';
+import { useWallet } from '../store/useWallet';
+
 export default function Index() {
+  const { data } = useWallet();
+
   function onConnect(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     async function processAsync() {
-      const publicClient = createPublicClient({
-        chain: sepolia,
-        transport: http(),
-      });
+      if (!data) {
+        return;
+      }
 
-      const client = createWalletClient({
-        chain: sepolia,
-        transport: custom(window.ethereum!),
-      });
+      const { walletClient, publicClient } = data;
 
-      const [address] = await client.requestAddresses();
+      const [address] = await walletClient.requestAddresses();
       console.log({ address });
 
       const balance = await publicClient.readContract({
@@ -59,7 +57,7 @@ export default function Index() {
         functionName: 'deposit',
         args: [BigInt(10)],
       });
-      const hash = await client.writeContract(request);
+      const hash = await walletClient.writeContract(request);
       console.log({ hash });
 
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
@@ -89,38 +87,51 @@ export default function Index() {
         </CardHeader>
         <CardBody>
           <Text>Manage your account with Bank3 App.</Text>
-          <Tabs className="mt-8">
-            <TabList>
-              <Tab>Deposit</Tab>
-            </TabList>
+          {data == null ? (
+            <EmptyState className="mt-8" />
+          ) : (
+            <Tabs className="mt-8">
+              <TabList>
+                <Tab>Deposit</Tab>
+              </TabList>
 
-            <TabPanels>
-              <TabPanel>
-                <form onSubmit={onConnect}>
-                  <FormControl>
-                    <FormLabel>Amount</FormLabel>
-                    <NumberInput max={50} min={10}>
-                      <NumberInputField />
-                      <NumberInputStepper>
-                        <NumberIncrementStepper />
-                        <NumberDecrementStepper />
-                      </NumberInputStepper>
-                    </NumberInput>
-                  </FormControl>
-                  <Button
-                    mt={4}
-                    colorScheme="teal"
-                    isLoading={false}
-                    type="submit"
-                  >
-                    Deposit
-                  </Button>
-                </form>
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
+              <TabPanels>
+                <TabPanel>
+                  <form onSubmit={onConnect}>
+                    <FormControl>
+                      <FormLabel>Amount</FormLabel>
+                      <NumberInput max={50} min={10}>
+                        <NumberInputField />
+                        <NumberInputStepper>
+                          <NumberIncrementStepper />
+                          <NumberDecrementStepper />
+                        </NumberInputStepper>
+                      </NumberInput>
+                    </FormControl>
+                    <Button
+                      mt={4}
+                      colorScheme="teal"
+                      isLoading={false}
+                      type="submit"
+                    >
+                      Deposit
+                    </Button>
+                  </form>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          )}
         </CardBody>
       </Card>
     </div>
+  );
+}
+
+function EmptyState({ className }: { className?: string }) {
+  return (
+    <Alert status="info" className={className}>
+      <AlertIcon />
+      Connect your wallet to get started.
+    </Alert>
   );
 }

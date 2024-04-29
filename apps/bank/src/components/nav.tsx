@@ -11,8 +11,7 @@ type Props = {
 };
 
 export function Nav({ appName }: Props) {
-  const { refetch: connect, data, status, isFetching } = useWallet();
-  console.log({ data, status });
+  const { refetch: connect, data, isFetching } = useWallet();
 
   return (
     <nav className="bg-gray-800">

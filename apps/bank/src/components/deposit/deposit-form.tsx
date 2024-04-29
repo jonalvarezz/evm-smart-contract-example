@@ -9,26 +9,40 @@ import {
   NumberIncrementStepper,
   NumberDecrementStepper,
   Button,
+  useToast,
 } from '@chakra-ui/react';
 
 type Props = {
-  onDeposit?: (amount: number) => void;
+  onDeposit?: (amount: number) => Promise<void>;
+  isLoading?: boolean;
 };
 
-export function DepositForm({ onDeposit }: Props) {
+export function DepositForm({ onDeposit, isLoading = false }: Props) {
+  const toast = useToast();
+
   const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (onDeposit) {
       const amount = parseFloat((event.target as any).amount.value);
-      onDeposit(amount);
+      const promise = onDeposit(amount);
+
+      toast.promise(promise, {
+        success: { title: 'Transaction completed' },
+        error: {
+          title: 'Transaction rejected',
+          description:
+            'We are sorry. Something wrong. Please check DevTools Console for further details.',
+        },
+        loading: { title: 'Processing...', description: 'Please wait' },
+      });
     }
   };
 
   return (
     <form onSubmit={onSubmit}>
-      <FormControl>
+      <FormControl isDisabled={isLoading}>
         <FormLabel>Amount</FormLabel>
-        <NumberInput max={1000} min={10} name="amount">
+        <NumberInput max={1000} min={1} name="amount">
           <NumberInputField />
           <NumberInputStepper>
             <NumberIncrementStepper />
@@ -36,7 +50,7 @@ export function DepositForm({ onDeposit }: Props) {
           </NumberInputStepper>
         </NumberInput>
       </FormControl>
-      <Button mt={4} colorScheme="teal" isLoading={false} type="submit">
+      <Button isDisabled={isLoading} mt={4} colorScheme="teal" type="submit">
         Deposit
       </Button>
     </form>

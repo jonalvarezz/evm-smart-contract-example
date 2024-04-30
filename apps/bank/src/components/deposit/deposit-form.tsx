@@ -12,6 +12,8 @@ import {
   NumberDecrementStepper,
   Button,
   HStack,
+  Center,
+  Spinner,
   Text,
   Link,
   useToast,
@@ -56,7 +58,11 @@ export function DepositForm({
   };
 
   if (!tokenData) {
-    return null;
+    return (
+      <Center h="150px">
+        <Spinner color="grey" />
+      </Center>
+    );
   }
 
   const allowance = tokenData.allowance.toString();

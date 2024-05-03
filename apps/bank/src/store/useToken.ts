@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { token, bank } from '@app/contract';
 import { useWallet } from './useWallet';
 
-export function useTokenQuery() {
+export function useTokenUserData() {
   const { data: wallet, status } = useWallet();
 
   return useQuery({

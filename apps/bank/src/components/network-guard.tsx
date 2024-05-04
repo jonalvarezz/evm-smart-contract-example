@@ -53,6 +53,26 @@ export function NetworkGuard() {
     networkChange();
   }, [setRequiresSwitch]);
 
+  // Watch on wallet chain change
+  useEffect(() => {
+    if (!window.ethereum) {
+      return;
+    }
+
+    const updateNotice = (chainId: string) => {
+      if (chainId !== targetChainId) {
+        setRequiresSwitch(true);
+      }
+    };
+
+    // Network check on wallet network change
+    window.ethereum.on('chainChanged', updateNotice);
+
+    return () => {
+      window.ethereum?.removeListener('chainChanged', updateNotice);
+    };
+  }, [setRequiresSwitch]);
+
   if (requiresSwitch) {
     return (
       <Alert status="warning">

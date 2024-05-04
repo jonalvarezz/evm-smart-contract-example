@@ -7,16 +7,19 @@ import {
 import { toHex } from 'viem';
 import { useEffect, useState } from 'react';
 
-import { network } from '../store/useWallet';
+import { network, useWallet } from '../store/useWallet';
 
 const targetChainId = toHex(network.id);
 
 export function NetworkGuard() {
+  const { status } = useWallet();
   const [requiresSwitch, setRequiresSwitch] = useState(false);
+
+  const isWalletConnected = status === 'success';
 
   // Force network check on load
   useEffect(() => {
-    if (!window.ethereum) {
+    if (!window.ethereum || !isWalletConnected) {
       return;
     }
 
@@ -30,7 +33,7 @@ export function NetworkGuard() {
         setRequiresSwitch(false);
       } catch (error: any) {
         // Try adding error if the network is not added
-        if (error.code === 4902) {
+        if (error?.code === 4902) {
           await window.ethereum?.request({
             method: 'wallet_addEthereumChain',
             params: [
@@ -44,18 +47,16 @@ export function NetworkGuard() {
           setRequiresSwitch(false);
         }
 
-        // swallow
-        if (process.env.NODE_ENV !== 'production') console.error(error);
         setRequiresSwitch(true);
       }
     };
 
     networkChange();
-  }, [setRequiresSwitch]);
+  }, [setRequiresSwitch, isWalletConnected]);
 
   // Watch on wallet chain change
   useEffect(() => {
-    if (!window.ethereum) {
+    if (!window.ethereum || !isWalletConnected) {
       return;
     }
 
@@ -71,7 +72,7 @@ export function NetworkGuard() {
     return () => {
       window.ethereum?.removeListener('chainChanged', updateNotice);
     };
-  }, [setRequiresSwitch]);
+  }, [setRequiresSwitch, isWalletConnected]);
 
   if (requiresSwitch) {
     return (

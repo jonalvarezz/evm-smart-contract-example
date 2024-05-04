@@ -63,6 +63,8 @@ export function NetworkGuard() {
     const updateNotice = (chainId: string) => {
       if (chainId !== targetChainId) {
         setRequiresSwitch(true);
+      } else {
+        setRequiresSwitch(false);
       }
     };
 
